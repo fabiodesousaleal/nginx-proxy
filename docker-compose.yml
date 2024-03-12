@@ -1,0 +1,35 @@
+version: '3.6'
+services:
+  nginx-proxy:
+    image: nginx
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - lab_network
+    volumes:
+    - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    - ./certs:/etc/ssl
+  gitlab:
+    image: gitlab/gitlab-ce
+    container_name: gitlab
+    restart: always
+    hostname: '127.0.0.1.nip.io'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        # Add any other gitlab.rb configuration here, each on its own line
+        external_url 'http://127.0.0.1.nip.io'
+        gitlab_rails['initial_root_password'] = 'teste@teste'
+        puma['work_processes'] = 0
+        gitlab_rails['ssl_certificate'] = "/etc/gitlab/ssl/gitlab.pem"
+        gitlab_rails['ssl_certificate_key'] = "/etc/gitlab/ssl/gitlab.key"
+    volumes:
+      - './GITLAB_HOME/config:/etc/gitlab'
+      - './GITLAB_HOME/logs:/var/log/gitlab'
+      - './GITLAB_HOME/data:/var/opt/gitlab'
+      - './certs:/etc/gitlab/ssl'
+    shm_size: '2gb'
+    networks:
+      - lab_network 
+networks:
+  lab_network:
