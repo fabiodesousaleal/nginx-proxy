@@ -15,3 +15,6 @@ stop:
 	docker-compose down
 
 restart: stop up
+
+key:
+	head -c 32 /dev/urandom | base64
